@@ -1,28 +1,34 @@
 var express = require('express');
+var teamsRepository = require('./teams-repository');
+
 var router = express.Router();
 
-var Team = require('./team');
+router.get('/', async (req, res, next) => {
+    
+    try {
+        var filter = {};
 
-router.get('/', (req, res, next) => {
-  
-    Team.find({}, (err, docs) => {
-        if(err)
-            res.json({error: err});
+        if(req.query) {
+            filter = req.query;
+        }
 
-        res.json(docs);
-    })
+        let teams = await teamsRepository.getAll(filter);
+        res.json(teams);
+
+    } catch(err) {
+        res.status(500).json({error: err});
+    }
 });
 
-router.get('/:id', (req, res, next) => {
+router.get('/:id', async (req, res, next) => {
 
-    Team.findById(req.params.id, (err, doc) => {
+    try {
+        let team = await teamsRepository.findById(req.params.id);
+        res.json(team);
 
-        if(err)
-            res.json({error: err});
-
-        res.json(doc);
-    });
-
+    } catch(err) {
+        res.status(500).json({error: err});
+    }
 });
 
 router.post('/', (req, res, next) => {
